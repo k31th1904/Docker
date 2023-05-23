@@ -1,8 +1,11 @@
 FROM golang:1.15 AS build-env
+RUN mkdir /src
 COPY file.go /src
 WORKDIR /src
-RUN go build -o app .
+RUN CGO_ENABLED=0 go build -a -installsuffix cgo -o app .
 
 FROM alpine:latest
-COPY --from build-env /src/app /app
+RUN mkdir /app
+COPY --from=build-env /src/app /app
+EXPOSE 8080
 CMD ["./app/app"]
